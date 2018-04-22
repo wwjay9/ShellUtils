@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# jdkRpm的下载链接
+jdkRpmDownloadUrl="http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm"
+
 # 输出普通信息
 echoOk(){
     echo -e "\033[36m$1\033[0m"
@@ -119,11 +122,11 @@ EOF
     testRun haveged
 fi
 
-###
+###Unresolved variable
 ## 安装jdk
 ###
 echoOk "安装jdk"
-wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jdk-8u162-linux-x64.rpm
+wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" ${jdkRpmDownloadUrl}
 yum localinstall jdk-*.rpm -y
 if java -version; then
     echoOk "jdk安装成功"
@@ -274,3 +277,5 @@ testRun nginx
 # 解决nginx代理本地服务时出现的13: Permission denied问题
 setsebool httpd_can_network_connect true -P
 openPort 80
+
+echoOk "所有软件已安装完成"
