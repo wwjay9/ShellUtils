@@ -233,6 +233,7 @@ openPort 6379
 echoOk "安装Docker"
 yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y
 yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+sed -i -e 's/https:\/\/download-stage.docker.com/https:\/\/mirrors.aliyun.com\/docker-ce/g' /etc/yum.repos.d/docker-ce.repo
 yum makecache fast
 yum install docker-ce -y
 usermod -a -G docker ${USER}
