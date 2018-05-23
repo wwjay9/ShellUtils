@@ -190,6 +190,7 @@ cat > /root/script/autostart.sh << EOF
 
 # 开启透明巨页内存支持
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo never > /sys/kernel/mm/transparent_hugepage/defrag
 EOF
 chmod +x /root/script/autostart.sh
 cat > /etc/systemd/system/autostart-script.service << EOF
@@ -278,5 +279,20 @@ testRun nginx
 # 解决nginx代理本地服务时出现的13: Permission denied问题
 setsebool httpd_can_network_connect true -P
 openPort 80
+
+###
+## 安装mongoDB
+###
+echoOk "安装mongoDB"
+cat > /etc/yum.repos.d/mongodb-org-3.6.repo << EOF
+[mongodb-org-3.6]
+name=MongoDB Repository
+baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/3.6/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc
+EOF
+yum install mongodb-org -y
+testRun mongod
 
 echoOk "所有软件已安装完成"
