@@ -281,9 +281,9 @@ setsebool httpd_can_network_connect true -P
 openPort 80
 
 ###
-## 安装mongoDB
+## 安装MongoDB
 ###
-echoOk "安装mongoDB"
+echoOk "安装MongoDB"
 cat > /etc/yum.repos.d/mongodb-org-3.6.repo << EOF
 [mongodb-org-3.6]
 name=MongoDB Repository
