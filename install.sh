@@ -2,6 +2,8 @@
 
 # jdkRpm的下载链接
 jdkRpmDownloadUrl="http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm"
+# NodeJs的rmp地址
+nodeJsRpmUrl="https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_10.x/el/7/x86_64/nodejs-10.1.0-1nodesource.x86_64.rpm"
 
 # 输出普通信息
 echoOk(){
@@ -294,5 +296,17 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc
 EOF
 yum install mongodb-org -y
 testRun mongod
+
+###
+## 安装NodeJS
+###
+echoOk "安装NodeJS"
+yum localinstall ${nodeJsRpmUrl} -y
+if node -v; then
+    echoOk "NodeJS安装成功"
+else
+    echoErr "=========================NodeJS安装出错========================="
+    exit 1
+fi
 
 echoOk "所有软件已安装完成"
