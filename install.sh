@@ -91,7 +91,7 @@ testRun ntpd
 ## 安装常用工具
 ###
 echoOk "安装常用工具"
-yum install yum-utils wget lrzsz gcc make vim -y
+yum install yum-utils wget lrzsz gcc make vim git -y
 
 ###
 ## 解决在ECS或docker中系统熵过低的问题
