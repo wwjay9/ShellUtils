@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# jdkRpm的下载链接
-jdkRpmDownloadUrl="http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm"
-
 # 输出普通信息
 echoOk(){
     echo -e "\033[36m$1\033[0m"
@@ -92,6 +89,40 @@ echoOk "安装常用工具"
 yum install yum-utils wget lrzsz gcc make vim git -y
 
 ###
+## 优化系统设置(创建自定义系统服务)
+###
+mkdir /root/script
+cat > /root/script/autostart.sh << EOF
+#!/bin/bash
+# Program:
+# 自动启动脚本
+
+# 开启透明巨页内存支持
+if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
+   echo never > /sys/kernel/mm/transparent_hugepage/enabled
+fi
+if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
+   echo never > /sys/kernel/mm/transparent_hugepage/defrag
+fi
+EOF
+chmod +x /root/script/autostart.sh
+cat > /etc/systemd/system/autostart-script.service << EOF
+[Unit]
+Description=Autostart script
+
+[Service]
+Type=oneshot
+
+ExecStart=/root/script/autostart.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl start autostart-script
+systemctl enable autostart-script
+
+###
 ## 解决在ECS或docker中系统熵过低的问题
 ###
 entropy=$(cat /proc/sys/kernel/random/entropy_avail)
@@ -99,7 +130,7 @@ if (($entropy < 1000));then
     echoOk "当前系统熵值为:$entropy,需要安装haveged伪随机数生成器"
     mkdir /usr/local/haveged
     cd /usr/local/haveged
-    wget http://www.issihosts.com/haveged/haveged-1.9.1.tar.gz
+    wget http://www.issihosts.com/haveged/haveged-1.9.2.tar.gz
     tar -zxv -f haveged-*.tar.gz --strip-components=1
     ./configure
     make
@@ -122,11 +153,11 @@ EOF
     testRun haveged
 fi
 
-###Unresolved variable
+###
 ## 安装jdk
 ###
 echoOk "安装jdk"
-wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" ${jdkRpmDownloadUrl}
+wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm
 yum localinstall jdk-*.rpm -y
 if java -version; then
     echoOk "jdk安装成功"
@@ -143,7 +174,7 @@ EOF
 source /etc/profile
 
 ###
-## 安装MySql
+## 安装MySql,安装后的root密码为root
 ###
 echoOk "安装MySql"
 yum list installed | grep mariadb && yum remove mariadb* -y
@@ -166,8 +197,8 @@ openPort 3306
 echoOk "安装Redis"
 mkdir /usr/local/redis
 cd /usr/local/redis/
-wget http://download.redis.io/releases/redis-4.0.9.tar.gz
-tar -zxv -f redis-*.tar.gz --strip-components=1
+wget http://download.redis.io/redis-stable.tar.gz
+tar -zxv -f redis-stable.tar.gz --strip-components=1
 make
 make install
 mkdir /etc/redis
@@ -181,33 +212,7 @@ vm.overcommit_memory = 1
 net.core.somaxconn = 511
 EOF
 sysctl -p
-# 开启透明巨页内存支持（创建自定义系统服务）
-mkdir /root/script
-cat > /root/script/autostart.sh << EOF
-#!/bin/bash
-# Program:
-# 自动启动脚本
 
-# 开启透明巨页内存支持
-echo never > /sys/kernel/mm/transparent_hugepage/enabled
-echo never > /sys/kernel/mm/transparent_hugepage/defrag
-EOF
-chmod +x /root/script/autostart.sh
-cat > /etc/systemd/system/autostart-script.service << EOF
-[Unit]
-Description=Autostart script
-
-[Service]
-Type=oneshot
-
-ExecStart=/root/script/autostart.sh
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl start autostart-script
-systemctl enable autostart-script
 # 修改配置文件
 sed -i -e 's/daemonize no/daemonize yes/g' /etc/redis/redis.conf
 sed -i -e 's/logfile ""/logfile \/var\/log\/redis.log/g' /etc/redis/redis.conf
@@ -264,9 +269,9 @@ rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 openPort 15672 5671 5672
 
 ###
-## 安装nginx
+## 安装Nginx
 ###
-echoOk "安装nginx"
+echoOk "安装Nginx"
 cat > /etc/yum.repos.d/nginx.repo << EOF
 [nginx]
 name=nginx repo
@@ -309,3 +314,7 @@ else
 fi
 
 echoOk "所有软件已安装完成"
+# 关闭防火墙
+systemctl stop firewalld
+systemctl disable firewalld
+echoOk "防火墙已关闭"
