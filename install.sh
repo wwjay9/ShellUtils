@@ -239,8 +239,6 @@ openPort 6379
 echoOk "安装Docker"
 yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y
 yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-sed -i -e 's/https:\/\/download-stage.docker.com/https:\/\/mirrors.aliyun.com\/docker-ce/g' /etc/yum.repos.d/docker-ce.repo
-yum makecache fast
 yum install docker-ce -y
 usermod -a -G docker ${USER}
 mkdir -p /etc/docker
@@ -275,7 +273,7 @@ echoOk "安装Nginx"
 cat > /etc/yum.repos.d/nginx.repo << EOF
 [nginx]
 name=nginx repo
-baseurl=http://nginx.org/packages/centos/7/\$basearch/
+baseurl=https://nginx.org/packages/centos/\$releasever/\$basearch/
 gpgcheck=0
 enabled=1
 EOF
@@ -304,9 +302,23 @@ testRun mongod
 ## 安装NodeJS
 ###
 echoOk "安装NodeJS"
-curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
+cat > /etc/yum.repos.d/nodesource-el7.repo << EOF
+[nodesource]
+name=Node.js Packages for Enterprise Linux 7 - \$basearch
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_10.x/el/\$releasever/\$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=0
+
+[nodesource-source]
+name=Node.js for Enterprise Linux 7 - \$basearch - Source
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_10.x/el/\$releasever/SRPMS
+failovermethod=priority
+enabled=0
+gpgcheck=0
+EOF
 yum install nodejs -y
-if node -v; then
+if node -v && npm -v; then
     echoOk "NodeJS安装成功"
 else
     echoErr "=========================NodeJS安装出错========================="
