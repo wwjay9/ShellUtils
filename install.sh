@@ -324,6 +324,8 @@ else
     echoErr "=========================NodeJS安装出错========================="
     exit 1
 fi
+npm config set registry https://registry.npm.taobao.org
+npm config get registry
 
 echoOk "所有软件已安装完成"
 # 关闭防火墙
