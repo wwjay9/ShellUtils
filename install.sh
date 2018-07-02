@@ -174,21 +174,26 @@ EOF
 source /etc/profile
 
 ###
-## 安装MySql,安装后的root密码为root
+## 安装MySql,安装后的root密码为123456
 ###
 echoOk "安装MySql"
 yum list installed | grep mariadb && yum remove mariadb* -y
-yum localinstall https://repo.mysql.com/mysql57-community-release-el7-11.noarch.rpm -y
+yum localinstall https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm -y
 yum install mysql-community-server -y
 testRun mysqld
 passwordLog=$(grep 'temporary password' /var/log/mysqld.log)
 tempPassword="${passwordLog: -12}"
+# 修改密码、删除匿名用户、禁止root远程访问、删除测试数据库
 mysql -uroot -p${tempPassword} --connect-expired-password <<EOF
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'q6IzZ|AX<@l}';
-uninstall plugin validate_password;
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+SET GLOBAL validate_password.policy = 0;
+SET GLOBAL validate_password.length = 0;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
 EOF
-#mysql -uroot -p${tempPassword} --connect-expired-password -Bse "ALTER USER 'root'@'localhost' IDENTIFIED BY 'q6IzZ|AX<@l}';uninstall plugin validate_password;ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';"
 openPort 3306
 
 ###
