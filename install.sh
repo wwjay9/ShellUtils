@@ -292,10 +292,10 @@ openPort 80
 ## 安装MongoDB
 ###
 echoOk "安装MongoDB"
-cat > /etc/yum.repos.d/mongodb-org-3.6.repo << EOF
+cat > /etc/yum.repos.d/mongodb-org-4.0.repo << EOF
 [mongodb-org-3.6]
 name=MongoDB Repository
-baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/3.6/x86_64/
+baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/4.0/x86_64/
 gpgcheck=0
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc
