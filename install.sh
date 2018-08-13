@@ -38,18 +38,17 @@ openPort(){
 echoOk "你的系统版本信息为:\n$(cat /etc/system-release)"
 
 ###
-## 修改yum安装源为aliyun
+## 添加yum源
 ###
-yum repolist | grep mirrors.aliyun.com > /dev/null
-if [ $? != 0 ]; then
-    echoOk "修改yum安装源为aliyun"
-    # 查看当前的yum源配置
-    yum repolist
-    # 备份当前的yum源配置
-    mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
-    # 下载aliyun配置
-    curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-fi
+echoOk "添加yum源"
+# 查看当前的yum源配置
+yum repolist
+# 备份当前的yum源配置
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+# 下载aliyun配置
+curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+# 下载epel源
+curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
 # 清理缓存
 yum clean all
 # 重新建立缓存
@@ -128,28 +127,7 @@ systemctl enable autostart-script
 entropy=$(cat /proc/sys/kernel/random/entropy_avail)
 if (($entropy < 1000));then
     echoOk "当前系统熵值为:$entropy,需要安装haveged伪随机数生成器"
-    mkdir /usr/local/haveged
-    cd /usr/local/haveged
-    wget http://www.issihosts.com/haveged/haveged-1.9.2.tar.gz
-    tar -zxv -f haveged-*.tar.gz --strip-components=1
-    ./configure
-    make
-    make install
-
-    # 创建service文件
-    cat > /etc/systemd/system/haveged.service << EOF
-[Unit]
-Description=haveged server
-
-[Service]
-Type=forking
-
-ExecStart=/usr/local/sbin/haveged
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
+    yum install haveged -y
     testRun haveged
 fi
 
