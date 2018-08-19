@@ -135,21 +135,18 @@ fi
 ## 安装jdk
 ###
 echoOk "安装jdk"
-wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm
-yum localinstall jdk-*.rpm -y
+yum install java-1.8.0-openjdk-devel -y
 if java -version; then
     echoOk "jdk安装成功"
 else
     echoErr "=========================jdk安装出错========================="
     exit 1
 fi
-rm jdk-*.rpm -f
-cat >> /etc/profile << EOF
+cat >> /etc/environment << EOF
 
-JAVA_HOME=/usr/java/latest
-export JAVA_HOME
+JAVA_HOME=/etc/alternatives/java_sdk
 EOF
-source /etc/profile
+source /etc/environment
 
 ###
 ## 安装MySql,安装后的root密码为123456
