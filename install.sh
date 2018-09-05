@@ -85,7 +85,7 @@ testRun ntpd
 ## 安装常用工具
 ###
 echoOk "安装常用工具"
-yum install yum-utils wget lrzsz gcc make vim git -y
+yum install yum-utils wget lrzsz gcc make vim git unzip -y
 
 ###
 ## 优化系统设置(创建自定义系统服务)
