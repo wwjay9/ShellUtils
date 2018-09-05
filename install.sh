@@ -175,41 +175,7 @@ openPort 3306
 ## 安装Redis
 ###
 echoOk "安装Redis"
-mkdir /usr/local/redis
-cd /usr/local/redis/
-wget http://download.redis.io/redis-stable.tar.gz
-tar -zxv -f redis-stable.tar.gz --strip-components=1
-make
-make install
-mkdir /etc/redis
-mkdir /var/redis
-cp /usr/local/redis/redis.conf /etc/redis/
-cat >> /etc/sysctl.conf << EOF
-
-#设置内核内存过量使用为true
-vm.overcommit_memory = 1
-#修改 backlog 连接数的最大值超过 redis.conf 中的 tcp-backlog 值，即默认值511
-net.core.somaxconn = 511
-EOF
-sysctl -p
-
-# 修改配置文件
-sed -i -e 's/daemonize no/daemonize yes/g' /etc/redis/redis.conf
-sed -i -e 's/logfile ""/logfile \/var\/log\/redis.log/g' /etc/redis/redis.conf
-sed -i -e 's/dir \.\//dir  \/var\/redis\//g' /etc/redis/redis.conf
-cat > /etc/systemd/system/redis.service << EOF
-[Unit]
-Description=Run redis server
-
-[Service]
-Type=forking
-
-ExecStart=/usr/local/bin/redis-server /etc/redis/redis.conf
-ExecStop=/usr/local/bin/redis-cli shutdown
-
-[Install]
-WantedBy=multi-user.target
-EOF
+yum install redis -y
 testRun redis
 openPort 6379
 
