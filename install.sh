@@ -212,8 +212,6 @@ echoOk "安装RabbitMQ"
 yum localinstall https://dl.bintray.com/rabbitmq/rpm/erlang/20/el/7/x86_64/erlang-20.3.4-1.el7.centos.x86_64.rpm -y
 yum localinstall https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.4/rabbitmq-server-3.7.4-1.el7.noarch.rpm -y
 chkconfig rabbitmq-server on
-# TODO 无法测试rabbitmq-server是否运行
-#testRun rabbitmq-server
 systemctl start rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 # 创建一个新用户来登录web管理页面
@@ -229,7 +227,7 @@ echoOk "安装Nginx"
 cat > /etc/yum.repos.d/nginx.repo << EOF
 [nginx]
 name=nginx repo
-baseurl=https://nginx.org/packages/centos/\$releasever/\$basearch/
+baseurl=https://mirrors.ustc.edu.cn/nginx/packages/centos/\$releasever/\$basearch/
 gpgcheck=0
 enabled=1
 EOF
