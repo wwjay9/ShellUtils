@@ -49,6 +49,16 @@ mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
 curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
 # 下载epel源
 curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+# 添加ius源
+cat > /etc/yum.repos.d/ius.repo << EOF
+[ius]
+name=IUS Community Packages for Enterprise Linux \$releasever - \$basearch
+baseurl=https://mirrors.aliyun.com/ius/stable/CentOS/\$releasever/\$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/IUS-COMMUNITY-GPG-KEY
+EOF
 # 清理缓存
 yum clean all
 # 重新建立缓存
@@ -85,7 +95,7 @@ testRun ntpd
 ## 安装常用工具
 ###
 echoOk "安装常用工具"
-yum install yum-utils wget lrzsz gcc make vim git unzip -y
+yum install yum-utils wget lrzsz gcc make vim git2u unzip -y
 
 ###
 ## 优化系统设置(创建自定义系统服务)
@@ -175,7 +185,7 @@ openPort 3306
 ## 安装Redis
 ###
 echoOk "安装Redis"
-yum install redis -y
+yum install redis40u -y
 testRun redis
 openPort 6379
 
