@@ -46,9 +46,9 @@ yum repolist
 # 备份当前的yum源配置
 mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
 # 下载aliyun配置
-curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
 # 下载epel源
-curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+curl -o /etc/yum.repos.d/epel.repo https://mirrors.aliyun.com/repo/epel-7.repo
 # 添加ius源
 cat > /etc/yum.repos.d/ius.repo << EOF
 [ius]
@@ -244,7 +244,7 @@ echoOk "安装MongoDB"
 cat > /etc/yum.repos.d/mongodb-org-4.0.repo << EOF
 [mongodb-org-4.0]
 name=MongoDB Repository
-baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/4.0/x86_64/
+baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/development/x86_64/
 gpgcheck=0
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
