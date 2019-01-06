@@ -145,7 +145,7 @@ fi
 ## 安装jdk
 ###
 echoOk "安装jdk"
-yum install java-1.8.0-openjdk-devel -y
+yum install java-11-openjdk-devel -y
 if java -version; then
     echoOk "jdk安装成功"
 else
