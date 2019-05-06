@@ -163,7 +163,7 @@ source /etc/environment
 ###
 echoOk "安装MySql"
 yum list installed | grep mariadb && yum remove mariadb* -y
-yum localinstall https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm -y
+yum localinstall https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm -y
 yum install mysql-community-server -y
 testRun mysqld
 passwordLog=$(grep 'temporary password' /var/log/mysqld.log)
