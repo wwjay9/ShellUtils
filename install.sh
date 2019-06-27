@@ -53,7 +53,7 @@ curl -o /etc/yum.repos.d/epel.repo https://mirrors.aliyun.com/repo/epel-7.repo
 cat > /etc/yum.repos.d/ius.repo << EOF
 [ius]
 name=IUS Community Packages for Enterprise Linux \$releasever - \$basearch
-baseurl=https://mirrors.aliyun.com/ius/stable/CentOS/\$releasever/\$basearch
+baseurl=https://mirrors.aliyun.com/ius/\$releasever/\$basearch
 failovermethod=priority
 enabled=1
 gpgcheck=0
