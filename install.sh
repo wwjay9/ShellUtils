@@ -185,7 +185,7 @@ openPort 3306
 ## 安装Redis
 ###
 echoOk "安装Redis"
-yum install redis40u -y
+yum install redis5 -y
 testRun redis
 openPort 6379
 
@@ -241,13 +241,12 @@ openPort 80
 ## 安装MongoDB
 ###
 echoOk "安装MongoDB"
-cat > /etc/yum.repos.d/mongodb-org-4.0.repo << EOF
-[mongodb-org-4.0]
+cat > /etc/yum.repos.d/mongodb-org.repo << EOF
+[mongodb-org]
 name=MongoDB Repository
-baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/development/x86_64/
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el\$releasever/
 gpgcheck=0
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc
 EOF
 yum install mongodb-org -y
 testRun mongod
