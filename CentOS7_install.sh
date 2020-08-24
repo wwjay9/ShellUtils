@@ -98,40 +98,6 @@ echoOk "安装常用工具"
 yum install yum-utils wget lrzsz gcc make vim git2u unzip -y
 
 ###
-## 优化系统设置(创建自定义系统服务)
-###
-mkdir /root/script
-cat > /root/script/autostart.sh << EOF
-#!/bin/bash
-# Program:
-# 自动启动脚本
-
-# 开启透明巨页内存支持
-if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
-   echo never > /sys/kernel/mm/transparent_hugepage/enabled
-fi
-if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
-   echo never > /sys/kernel/mm/transparent_hugepage/defrag
-fi
-EOF
-chmod +x /root/script/autostart.sh
-cat > /etc/systemd/system/autostart-script.service << EOF
-[Unit]
-Description=Autostart script
-
-[Service]
-Type=oneshot
-
-ExecStart=/root/script/autostart.sh
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl daemon-reload
-systemctl start autostart-script
-systemctl enable autostart-script
-
-###
 ## 解决在ECS或docker中系统熵过低的问题
 ###
 entropy=$(cat /proc/sys/kernel/random/entropy_avail)
@@ -227,7 +193,7 @@ echoOk "安装Nginx"
 cat > /etc/yum.repos.d/nginx.repo << EOF
 [nginx]
 name=nginx repo
-baseurl=https://mirrors.ustc.edu.cn/nginx/packages/centos/\$releasever/\$basearch/
+baseurl=https://nginx.org/packages/centos/\$releasever/\$basearch/
 gpgcheck=0
 enabled=1
 EOF
@@ -258,14 +224,14 @@ echoOk "安装NodeJS"
 cat > /etc/yum.repos.d/nodesource-el7.repo << EOF
 [nodesource]
 name=Node.js Packages for Enterprise Linux 7 - \$basearch
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_10.x/el/\$releasever/\$basearch
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_14.x/el/\$releasever/\$basearch
 failovermethod=priority
 enabled=1
 gpgcheck=0
 
 [nodesource-source]
 name=Node.js for Enterprise Linux 7 - \$basearch - Source
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_10.x/el/\$releasever/SRPMS
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_14.x/el/\$releasever/SRPMS
 failovermethod=priority
 enabled=0
 gpgcheck=0
