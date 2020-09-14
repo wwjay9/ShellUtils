@@ -13,11 +13,11 @@ echoErr(){
 # 将指定的服务启动并测试程序是否在运行,如果没有在运行则退出脚本
 testRun(){
     systemctl daemon-reload
-    systemctl start $1
-    systemctl enable $1
-    systemctl status $1
+    systemctl start "$1"
+    systemctl enable "$1"
+    systemctl status "$1"
 
-    if pgrep $1 > /dev/null; then
+    if pgrep "$1" > /dev/null; then
         echoOk "$1安装完成"
     else
         echoErr "=========================$1安装出错========================="
@@ -29,7 +29,7 @@ testRun(){
 openPort(){
     for port in "$@"
     do
-        firewall-cmd --permanent --zone=public --add-port=${port}/tcp
+        firewall-cmd --permanent --zone=public --add-port="${port}"/tcp
     done
     firewall-cmd --reload
 }
@@ -135,7 +135,7 @@ testRun mysqld
 passwordLog=$(grep 'temporary password' /var/log/mysqld.log)
 tempPassword="${passwordLog: -12}"
 # 修改密码、删除匿名用户、禁止root远程访问、删除测试数据库
-mysql -uroot -p${tempPassword} --connect-expired-password <<EOF
+mysql -uroot -p"${tempPassword}" --connect-expired-password <<EOF
 SET GLOBAL validate_password.policy = 0;
 SET GLOBAL validate_password.length = 0;
 ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
@@ -162,7 +162,7 @@ echoOk "安装Docker"
 yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y
 yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
 yum install docker-ce -y
-usermod -a -G docker ${USER}
+usermod -a -G docker "${USER}"
 mkdir -p /etc/docker
 tee /etc/docker/daemon.json <<-'EOF'
 {
