@@ -175,8 +175,8 @@ testRun docker
 ## 安装RabbitMQ
 ###
 echoOk "安装RabbitMQ"
-yum localinstall https://dl.bintray.com/rabbitmq/rpm/erlang/20/el/7/x86_64/erlang-20.3.4-1.el7.centos.x86_64.rpm -y
-yum localinstall https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.4/rabbitmq-server-3.7.4-1.el7.noarch.rpm -y
+yum localinstall https://packagecloud.io/rabbitmq/erlang/packages/el/7/erlang-23.0.4-1.el7.x86_64.rpm/download.rpm -y
+yum localinstall https://packagecloud.io/rabbitmq/rabbitmq-server/packages/el/7/rabbitmq-server-3.8.8-1.el7.noarch.rpm/download.rpm -y
 chkconfig rabbitmq-server on
 systemctl start rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
