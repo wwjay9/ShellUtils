@@ -43,21 +43,34 @@ echoOk "你的系统版本信息为:\n$(cat /etc/system-release)"
 echoOk "添加yum源"
 # 查看当前的yum源配置
 yum repolist
-# 备份当前的yum源配置
-mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
-# 下载aliyun配置
-curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
-# 下载epel源
-curl -o /etc/yum.repos.d/epel.repo https://mirrors.aliyun.com/repo/epel-7.repo
-# 添加ius源
-cat > /etc/yum.repos.d/ius.repo << EOF
-[ius]
-name=IUS Community Packages for Enterprise Linux \$releasever - \$basearch
-baseurl=https://mirrors.aliyun.com/ius/\$releasever/\$basearch
-failovermethod=priority
+# 替换CentOS镜像
+sed -e 's!^mirrorlist=!#mirrorlist=!g' \
+    -e 's!^#baseurl=!baseurl=!g' \
+    -e 's!http[s]*://mirror.centos.org/centos!https://mirrors.aliyun.com/centos!g' \
+    -i /etc/yum.repos.d/CentOS-Base.repo
+# 添加epel.repo
+cat > /etc/yum.repos.d/epel.repo << EOF
+[epel]
+name=Extra Packages for Enterprise Linux 7 - \$basearch
+baseurl=https://mirrors.aliyun.com/epel/7/\$basearch/
 enabled=1
 gpgcheck=0
-gpgkey=file:///etc/pki/rpm-gpg/IUS-COMMUNITY-GPG-KEY
+EOF
+# 添加ius.repo
+cat > /etc/yum.repos.d/ius.repo << EOF
+[ius]
+name=IUS for Enterprise Linux 7 - \$basearch
+baseurl=https://mirrors.aliyun.com/ius/7/\$basearch/
+enabled=1
+gpgcheck=0
+EOF
+# 添加remi.repo
+cat > /etc/yum.repos.d/remi.repo << EOF
+[remi]
+name=Remi RPM repository for Enterprise Linux 7 - \$basearch
+baseurl=https://mirrors.aliyun.com/remi/enterprise/7/remi/\$basearch/
+enabled=1
+gpgcheck=0
 EOF
 # 清理缓存
 yum clean all
@@ -95,7 +108,7 @@ testRun ntpd
 ## 安装常用工具
 ###
 echoOk "安装常用工具"
-yum install yum-utils wget lrzsz gcc make vim git2u unzip -y
+yum install yum-utils wget lrzsz vim git224 zip unzip -y
 
 ###
 ## 解决在ECS或docker中系统熵过低的问题
@@ -118,8 +131,7 @@ else
     echoErr "=========================jdk安装出错========================="
     exit 1
 fi
-cat >> /etc/environment << EOF
-
+tee /etc/environment -a <<-'EOF'
 JAVA_HOME=/etc/alternatives/java_sdk
 EOF
 source /etc/environment
@@ -130,6 +142,8 @@ source /etc/environment
 echoOk "安装MySql"
 yum list installed | grep mariadb && yum remove mariadb* -y
 yum localinstall https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm -y
+sed -e 's!^baseurl=http[s]*://repo.mysql.com!baseurl=https://mirrors.ustc.edu.cn/mysql-repo!g' \
+    -i /etc/yum.repos.d/mysql-community.repo /etc/yum.repos.d/mysql-community-source.repo
 yum install mysql-community-server -y
 testRun mysqld
 passwordLog=$(grep 'temporary password' /var/log/mysqld.log)
@@ -151,7 +165,7 @@ openPort 3306
 ## 安装Redis
 ###
 echoOk "安装Redis"
-yum install redis5 -y
+yum install redis -y
 testRun redis
 openPort 6379
 
@@ -207,12 +221,13 @@ openPort 80
 ## 安装MongoDB
 ###
 echoOk "安装MongoDB"
-cat > /etc/yum.repos.d/mongodb-org.repo << EOF
-[mongodb-org]
+cat > /etc/yum.repos.d/mongodb-org-4.2.repo << EOF
+[mongodb-org-4.2]
 name=MongoDB Repository
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el\$releasever/
-gpgcheck=0
+baseurl=https://mirrors.aliyun.com/mongodb/yum/redhat/\$releasever/mongodb-org/4.2/\$basearch/
+gpgcheck=1
 enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
 EOF
 yum install mongodb-org -y
 testRun mongod
@@ -221,21 +236,9 @@ testRun mongod
 ## 安装NodeJS
 ###
 echoOk "安装NodeJS"
-cat > /etc/yum.repos.d/nodesource-el7.repo << EOF
-[nodesource]
-name=Node.js Packages for Enterprise Linux 7 - \$basearch
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_14.x/el/\$releasever/\$basearch
-failovermethod=priority
-enabled=1
-gpgcheck=0
-
-[nodesource-source]
-name=Node.js for Enterprise Linux 7 - \$basearch - Source
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/nodesource/rpm_14.x/el/\$releasever/SRPMS
-failovermethod=priority
-enabled=0
-gpgcheck=0
-EOF
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+sed -e 's!http[s]*://rpm.nodesource.com!https://mirrors.ustc.edu.cn/nodesource/rpm!g' \
+    -i /etc/yum.repos.d/nodesource-*.repo
 yum install nodejs -y
 if node -v && npm -v; then
     echoOk "NodeJS安装成功"
